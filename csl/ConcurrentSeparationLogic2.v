@@ -213,16 +213,46 @@ Definition inc_inv A : cfg A -> Prop :=
 (*     -> ho_spec_old B (Cfg (h $+ (0 ,n)) {} (P || incrementer)) *)
 (*                (fun _ c => inc_inv c) (fun _ => False). *)
 
-Inductive ho_spec (B : Spec (cfg unit)) : Spec (cfg unit) :=
+Inductive ho_spec (C : Spec (cfg unit)) : Spec (cfg unit) :=
 | claim1 : forall h P n,
     h = $0 $+ (0, n) -> n > 0 -> 
-    B (Cfg h {} (P || incrementer)) (fun _ c => inc_inv c) (fun _ => False) ->
-    (forall x x' l l' Z Q,
-        (forall Z', cslstep (Cfg x l (Z || Q)) (Cfg x' l' (Z' || Q)) ->
-                    B (Cfg x' l' (Z' || Q)) (fun _ c => inc_inv c) (fun _ => False)
-                    /\ inc_inv (Cfg x' l' (Z' || Q))))      
-    -> ho_spec B (Cfg (h $+ (0 ,n)) {} (P || incrementer))
+    C (Cfg h {} (P || incrementer)) (fun _ c => inc_inv c) (fun _ => False) ->
+    (forall x x' l l' Z Z' Q,
+        cslstep (Cfg x l (Z || Q)) (Cfg x' l' (Z' || Q)) ->
+        C (Cfg x' l' (Z' || Q)) (fun _ c => inc_inv c) (fun _ => False) /\
+        inc_inv (Cfg x' l' (Z' || Q)))
+    -> ho_spec C (Cfg (h $+ (0 ,n)) {} (P || incrementer))
                (fun _ c => inc_inv c) (fun _ => False).
+
+Inductive EnforceInvariance (C : Spec (cfg unit)) : Spec (cfg unit) :=
+| enf1 : forall x x' l l' Z Z' Q,
+    cslstep (Cfg x l (Z || Q)) (Cfg x' l' (Z' || Q)) ->
+    EnforceInvariance C (Cfg x' l' (Z' || Q)) (fun _ c => inc_inv c) (fun _ => False)
+| enf2 : forall x l Z Q,
+    C (Cfg x l (Z || Q)) (fun _ c => inc_inv c) (fun _ => False) ->
+    EnforceInvariance C (Cfg x l (Z || Q)) (fun _ c => inc_inv c) (fun _ => False).
+
+Inductive ho_spec_simp (C : Spec (cfg unit)) : Spec (cfg unit) :=
+| claim1_simp : forall h P n,
+    h = $0 $+ (0, n) -> n > 0 -> 
+    C (Cfg h {} (P || incrementer)) (fun _ c => inc_inv c) (fun _ => False) ->
+    ho_spec_simp C (Cfg (h $+ (0 ,n)) {} (P || incrementer))
+                 (fun _ c => inc_inv c) (fun _ => False).
+
+Lemma S_lemma : forall C, subspec (ho_spec C) (ho_spec_simp (EnforceInvariance C)).
+Proof.
+  intros;intro;intros. inversion H; subst.
+  econstructor; auto. apply enf2. assumption. 
+Qed. 
+
+Lemma S_lemma2 : forall C, subspec (ho_spec_simp (EnforceInvariance C)) (ho_spec C) .
+Proof.
+  intros;intro;intros. inversion H; subst.
+  inversion H2; subst.
+  Focus 2. econstructor; auto. 
+Admitted.
+
+
 
 Inductive nonho_spec : Spec (cfg unit) :=
 | nonho_claim : forall h n,

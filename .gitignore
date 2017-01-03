@@ -1,3 +1,4 @@
 *.vo
 *.glob
-dist/*
+dist
+.shake
