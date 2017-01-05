@@ -240,12 +240,39 @@ Inductive ho_spec_simp (C : Spec (cfg unit)) : Spec (cfg unit) :=
 
 (* S defined as S H = H o EnforceInvariance *)
 (* (S (ho_spec_simp)) x = ho_spec_simp (EnforceInvariance x) *)
+Definition S := fun (H : Spec (cfg unit) -> Spec (cfg unit)) x => H (EnforceInvariance x).
 
+Lemma EnfInv_mono : mono EnforceInvariance.
+Proof.
+  intro;intros;intro;intros.
+  inversion H0; subst. eapply enf1. eassumption. constructor. apply H. assumption. 
+Qed. 
+
+Lemma S_mono : ho_mono S.
+Proof.
+  intro;intros;intro;intros;intro;intros. unfold S.
+  unfold subspec, Proper, respectful in H.
+  apply H with (EnforceInvariance x0). intros.
+  revert H2. apply EnfInv_mono. assumption. assumption. 
+Qed. 
+
+Lemma subspecST : forall C A, mono C -> subspec (S C A) (T (step (@cslstep unit)) C A). 
+Proof.
+  intros;intro;intros. unfold S in H0. 
+  apply tfun. apply step_mono. assumption.
+  revert H0. apply H. intro;intros.
+  inversion H0; subst.
+  Focus 2. apply Tf_id. assumption.
+  apply Tf_t. assumption.
+  apply t_gfp with (F := EnforceInvariance). apply EnfInv_mono. intros;intro;intros.
+  econstructor. apply EnfInv_mono. intros;intro;intros.
+  admit. 
+Qed.
 
 (* ho_spec <= S ho_spec_simp *)
-Lemma S_lemma : forall C, subspec (ho_spec C) (ho_spec_simp (EnforceInvariance C)).
+Lemma S_lemma : forall C, subspec (ho_spec C) (S ho_spec_simp C).
 Proof.
-  intros;intro;intros. inversion H; subst.
+  intros;intro;intros. unfold S. inversion H; subst.
   econstructor; auto. apply enf2. assumption. 
 Qed. 
 
