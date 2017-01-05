@@ -6,15 +6,14 @@
 Require Import Map CSLSets Setoid Classes.Morphisms.
 Require Import Decidable Coq.Logic.Eqdep Coq.Logic.EqdepFacts Peano_dec Coq.omega.Omega.
 
-Require Import ho_proof_until_gen.
-Require Import until_all_ok.
+Require Export ho_proof_until_gen.
+Require Export until_all_ok.
 
 Set Implicit Arguments.
 
 (* Let's combine the subjects of the last two lectures, to let us prove
  * correctness of concurrent programs that do dynamic management of shared
  * memory. *)
-
 
 (** * Shared notations and definitions; main material starts afterward. *)
 
@@ -239,12 +238,17 @@ Inductive ho_spec_simp (C : Spec (cfg unit)) : Spec (cfg unit) :=
     ho_spec_simp C (Cfg (h $+ (0 ,n)) {} (P || incrementer))
                  (fun _ c => inc_inv c) (fun _ => False).
 
+(* S defined as S H = H o EnforceInvariance *)
+(* (S (ho_spec_simp)) x = ho_spec_simp (EnforceInvariance x) *)
+
+(* H <= S H' *)
 Lemma S_lemma : forall C, subspec (ho_spec C) (ho_spec_simp (EnforceInvariance C)).
 Proof.
   intros;intro;intros. inversion H; subst.
   econstructor; auto. apply enf2. assumption. 
 Qed. 
 
+(* S H' <= H *)
 Lemma S_lemma2 : forall C, subspec (ho_spec_simp (EnforceInvariance C)) (ho_spec C) .
 Proof.
   intros;intro;intros. inversion H; subst.
@@ -252,8 +256,7 @@ Proof.
   Focus 2. econstructor; auto. 
 Admitted.
 
-
-
+  
 Inductive nonho_spec : Spec (cfg unit) :=
 | nonho_claim : forall h n,
     h = $0 $+ (0, n) -> n > 0 -> 
