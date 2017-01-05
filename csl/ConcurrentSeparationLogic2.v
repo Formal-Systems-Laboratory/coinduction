@@ -241,21 +241,22 @@ Inductive ho_spec_simp (C : Spec (cfg unit)) : Spec (cfg unit) :=
 (* S defined as S H = H o EnforceInvariance *)
 (* (S (ho_spec_simp)) x = ho_spec_simp (EnforceInvariance x) *)
 
-(* H <= S H' *)
+
+(* ho_spec <= S ho_spec_simp *)
 Lemma S_lemma : forall C, subspec (ho_spec C) (ho_spec_simp (EnforceInvariance C)).
 Proof.
   intros;intro;intros. inversion H; subst.
   econstructor; auto. apply enf2. assumption. 
 Qed. 
 
-(* S H' <= H *)
+(* S ho_spec_simp <= ho_spec *)
 Lemma S_lemma2 : forall C, subspec (ho_spec_simp (EnforceInvariance C)) (ho_spec C) .
 Proof.
   intros;intro;intros. inversion H; subst.
   inversion H2; subst.
   Focus 2. econstructor; auto. 
 Admitted.
-
+ 
   
 Inductive nonho_spec : Spec (cfg unit) :=
 | nonho_claim : forall h n,
