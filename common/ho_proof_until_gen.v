@@ -295,43 +295,52 @@ Proof.
   intro;intros. apply H. constructor. firstorder. assumption.
 Qed.
 
-Lemma SHT_lemma : forall S H b,
-    ho_mono S -> mono H -> mono b ->
-    (forall A, subspec (S H A) (H A)) ->
-    (forall F A, subspec (S F A) (T b F A)) -> 
-    (forall A', subspec (H A') (b (T b H A'))) ->
-    (forall A'', subspec ((S H) A'') (b (T b (S H) A''))).
-Proof. 
-  intros;intro;intros.
-  unfold subspec in H4.
-  apply H3 in H6. 
-  apply H5 in H6. admit.
-Qed.
-
 (*
 S <= T implies 
-  H <= B T H implies (S H) <= B T H
-*)
-Lemma SHT_lemma' : forall S H b,
-    ho_mono S -> mono H -> mono b ->
-    (forall F A, subspec (S F A) (T b F A)) -> 
-    (forall A', subspec (H A') (B b (T b H) A')) ->
-    (forall A'', subspec ((S H) A'') (B b (T b H) A'')).
+  H <= B T H' implies (S H) <= B T H'
+ *)
+Lemma SHT_lemma' : forall S H H' b,
+    ho_mono S -> mono H -> mono H' -> mono b ->
+    (forall F A, mono F -> subspec (S F A) (T b F A)) ->
+    (forall A', subspec (H A') (B b (T b H') A')) ->
+    (forall A'', subspec ((S H) A'') (B b (T b H') A'')).
 Proof.
   intros;intro;intros.
-  assert (B b (T b (T b H)) A'' k R P -> B b (T b H) A'' k R P).
-  apply B_mono. apply H2. intro;intros;intro;intros.
+  assert (B b (T b (T b H')) A'' k R P -> B b (T b H') A'' k R P).
+  apply B_mono. apply H3. intro;intros;intro;intros.
   apply T_idem; try assumption.
-  revert H7. apply T_mono. intro;intros;intro;intros.
-  revert H8. apply T_mono; firstorder. firstorder. firstorder.
-  apply H6.
+  revert H8. apply T_mono. intro;intros;intro;intros.
+  revert H9. apply T_mono; firstorder. firstorder. firstorder.
+  apply H7.
   
-  apply T_compat. assumption. intro;intros;intro;intros. 
-  revert H8. apply T_mono; firstorder. 
+  apply T_compat. assumption. intro;intros;intro;intros.
+  revert H9. apply T_mono; firstorder.
 
-  apply H3. revert H5. apply H0. intro;intros;intro;intros.
-  apply H4. revert H7. apply H1; firstorder. firstorder. 
+  apply H4. apply B_mono. apply H3. apply T_mono. firstorder.
+  revert H6. apply H0. intro;intros;intro;intros.
+  apply H5. revert H8. apply H1; firstorder. firstorder.
 Qed.
+
+(* Lemma SHT_lemma' : forall S H b, *)
+(*     ho_mono S -> mono H -> mono b -> *)
+(*     (forall F A, subspec (S F A) (T b F A)) ->  *)
+(*     (forall A', subspec (H A') (B b (T b H) A')) -> *)
+(*     (forall A'', subspec ((S H) A'') (B b (T b H) A'')). *)
+(* Proof. *)
+(*   intros;intro;intros. *)
+(*   assert (B b (T b (T b H)) A'' k R P -> B b (T b H) A'' k R P). *)
+(*   apply B_mono. apply H2. intro;intros;intro;intros. *)
+(*   apply T_idem; try assumption. *)
+(*   revert H7. apply T_mono. intro;intros;intro;intros. *)
+(*   revert H8. apply T_mono; firstorder. firstorder. firstorder. *)
+(*   apply H6. *)
+  
+(*   apply T_compat. assumption. intro;intros;intro;intros.  *)
+(*   revert H8. apply T_mono; firstorder.  *)
+
+(*   apply H3. revert H5. apply H0. intro;intros;intro;intros. *)
+(*   apply H4. revert H7. apply H1; firstorder. firstorder.  *)
+(* Qed. *)
 
 (* H <= B T (S H) implies H <= B T H *)
 Lemma SHT_lemma'' : forall S H b,

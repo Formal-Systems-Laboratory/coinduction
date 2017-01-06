@@ -238,6 +238,17 @@ Inductive ho_spec_simp (C : Spec (cfg unit)) : Spec (cfg unit) :=
     ho_spec_simp C (Cfg (h $+ (0 ,n)) {} (P || incrementer))
                  (fun _ c => inc_inv c) (fun _ => False).
 
+Lemma ho_spec_simp_mono : mono ho_spec_simp.
+Proof.
+  intro;intros;intro;intros. inversion H0; subst. constructor; auto.
+Qed.
+
+
+Lemma ho_subspec : forall A, subspec (ho_spec A) (ho_spec_simp A).
+Proof.
+  intros;intro;intros. inversion H; subst. constructor; auto.
+Qed.
+
 (* S defined as S H = H o EnforceInvariance *)
 (* (S (ho_spec_simp)) x = ho_spec_simp (EnforceInvariance x) *)
 Definition S := fun (H : Spec (cfg unit) -> Spec (cfg unit)) x => H (EnforceInvariance x).
@@ -266,8 +277,7 @@ Proof.
   apply Tf_t. assumption.
   apply t_gfp with (F := EnforceInvariance). apply EnfInv_mono. intros;intro;intros.
   econstructor. apply EnfInv_mono. intros;intro;intros.
-  admit. 
-Qed.
+  Admitted.
 
 (* ho_spec <= S ho_spec_simp *)
 Lemma S_lemma : forall C, subspec (ho_spec C) (S ho_spec_simp C).
@@ -276,14 +286,29 @@ Proof.
   econstructor; auto. apply enf2. assumption. 
 Qed. 
 
-(* S ho_spec_simp <= ho_spec *)
-Lemma S_lemma2 : forall C, subspec (ho_spec_simp (EnforceInvariance C)) (ho_spec C) .
+(* (* S ho_spec_simp <= ho_spec *) *)
+(* Lemma S_lemma2 : forall C, subspec (S ho_spec_simp C) (ho_spec C). *)
+(* Proof. *)
+(*   intros;intro;intros. inversion H; subst. *)
+(*   inversion H2; subst. *)
+(*   Focus 2. econstructor; auto.  *)
+(* Admitted. *)
+
+(* (* S ho_spec <= ho_spec_simp *) *)
+(* Lemma S_lemma3 : forall C, subspec (S ho_spec C) (ho_spec_simp C). *)
+(* Proof. *)
+(*   intros;intro;intros. inversion H; subst. *)
+(*   constructor; auto. *)
+(*   inversion H2; subst. *)
+(*   Focus 2. assumption. admit. *)
+(* Qed. *)
+
+Lemma S_lemma2 : forall C, subspec (ho_spec_simp C) (S ho_spec C).
 Proof.
-  intros;intro;intros. inversion H; subst.
-  inversion H2; subst.
-  Focus 2. econstructor; auto. 
-Admitted.
- 
+  intros;intro;intros. unfold S. inversion H; subst.
+  constructor; auto. apply enf2. assumption.
+  intros. split. eapply enf1. eassumption.
+  Admitted.
   
 Inductive nonho_spec : Spec (cfg unit) :=
 | nonho_claim : forall h n,
@@ -367,10 +392,10 @@ Proof.
   apply lookup_add_eq. trivial. rewrite H in H0. inversion H0. trivial.
 Qed.
 
-Lemma ho_ok_all : sound (@cslstep unit) nonho_spec.
+Lemma ho_spec_bT : forall A,
+    subspec (ho_spec A) (step (@cslstep unit) (T (step (@cslstep unit)) ho_spec A)).
 Proof.
-  unfold sound. eapply ok with ho_spec. apply ho_spec_mono.
-  intros. 
+    intros. 
   destruct 1. apply sstep. econstructor.
   apply StepPar2. constructor.
   
@@ -492,10 +517,65 @@ Proof.
   assert ($0 $+ (0, v) = $0 $+ (0, v) $+ (0, v) $+ (0, v)) by maps_equal.
   assert (({} \cup {0}) \setminus {0} = {}) by sets idtac.
   rewrite <- H3. rewrite H31. apply H.
-
   intros. inversion H. 
-  apply ho_gfp. 
+Qed.
 
+Lemma ho_spec_BT : forall A,
+    subspec (ho_spec A) (B (step (@cslstep unit)) (T (step (@cslstep unit)) ho_spec) A).
+Proof.
+  intros;intro;intros.
+  pose proof ho_spec_bT.
+  assert (forall A1 : ho_proof_until_gen.Spec (cfg unit),
+   subspec (ho_spec (step (cslstep (A:=unit)) A1))
+     (step (cslstep (A:=unit)) (T (step (cslstep (A:=unit))) ho_spec A1))).
+  unfold subspec;intros.
+  apply H0 in H1. revert H1. apply step_mono.
+  unfold subspec;intros. apply Tf_idem. apply step_mono. apply ho_spec_mono.
+  revert H1. apply T_mono. apply ho_spec_mono. apply Tf_base. apply step_mono.
+  econstructor. apply ho_spec_mono. assumption. assumption. 
+Qed.
+
+Lemma ho_spec_simp_BT_help : forall A,
+    subspec (ho_spec A) (B (step (@cslstep unit)) (T (step (@cslstep unit)) ho_spec_simp) A).
+Proof.
+  intros.
+  assert (subspec (B (step (@cslstep unit)) (T (step (@cslstep unit)) ho_spec) A)
+                  (B (step (@cslstep unit)) (T (step (@cslstep unit)) ho_spec_simp) A)).
+  intros;intro;intros. revert H.
+  apply B_mono. apply step_mono. apply T_mono. intro;intros;intro;intro;intros.
+  apply ho_subspec. revert H0. apply ho_spec_mono. assumption.
+  firstorder. intro;intros. eapply H. apply ho_spec_BT. assumption.
+Qed.
+
+Lemma ho_spec_simp_BT : forall A,
+    subspec (ho_spec_simp A) (B (step (@cslstep unit)) (T (step (@cslstep unit)) ho_spec_simp) A).
+Proof.
+  intros;intro;intros.
+  eapply SHT_lemma'. apply S_mono. apply ho_spec_mono. apply ho_spec_simp_mono.
+  apply step_mono.
+  intros. apply subspecST. apply H0. 
+  apply ho_spec_simp_BT_help. apply S_lemma2. assumption.
+Qed.
+
+(* Conclusion: need an S such that *)
+(* S <= T and *)
+(* ho_spec_simp <= S (ho_spec) *)
+(* Proof also relies on ho_spec <= ho_spec_simp *)
+
+Print Assumptions ho_spec_simp_BT.
+
+
+Theorem ho_ok_all : sound (@cslstep unit) nonho_spec.
+Proof.
+  unfold sound. eapply ok with ho_spec_simp. apply ho_spec_simp_mono.
+  intros;intro;intros.
+  pose proof ho_spec_simp_BT.
+  admit. 
+
+  intro;intros. inversion H. 
+  constructor; try assumption. rewrite H0.
+  assert ($0 $+ (0,n) = $0 $+ (0,n) $+ (0,n)) by maps_equal.
+  rewrite H5. constructor; auto.
 Qed.
 
 Print Assumptions ho_ok_all.
