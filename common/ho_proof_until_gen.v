@@ -267,34 +267,6 @@ Proof.
   unfold subspec;intros. apply Tf_idem; try assumption. apply Tf_base; auto.
 Qed.
 
-Inductive lub (X Y: Spec): Spec :=
-| lub_def : forall Z k R P,
-    subspec X Z -> subspec Y Z ->
-    (forall Z', (subspec X Z' /\ subspec Y Z') -> subspec Z Z') ->
-    Z k R P -> (lub X Y) k R P.
-
-Inductive myf (X Y Z : Spec) : Spec :=
-| myf_def : forall k R P,
-    subspec X Z -> Y k R P -> (myf X Y Z) k R P.
-
-
-Lemma myf_t : forall X Y Z b,
-    subspec Y (b (t b Y)) \/ subspec Y (b (t b X)) -> subspec (myf X Y Z) (t b Z).
-Admitted.
-  
-
-Lemma t_coind : forall b (X Y : Spec),
-    mono b ->
-    subspec Y (b (t b (lub X Y))) -> subspec Y (t b X).
-Admitted.
-
-Lemma t_coind' : forall b (X Y : Spec),
-    subspec Y (b (t b Y)) \/ subspec Y (b (t b X)) -> subspec Y (t b X).
-Proof.
-  intros. eapply myf_t with (Z := X) in H. unfold subspec in H.
-  intro;intros. apply H. constructor. firstorder. assumption.
-Qed.
-
 (*
 S <= T implies 
   H <= B T H' implies (S H) <= B T H'
@@ -320,27 +292,6 @@ Proof.
   revert H6. apply H0. intro;intros;intro;intros.
   apply H5. revert H8. apply H1; firstorder. firstorder.
 Qed.
-
-(* Lemma SHT_lemma' : forall S H b, *)
-(*     ho_mono S -> mono H -> mono b -> *)
-(*     (forall F A, subspec (S F A) (T b F A)) ->  *)
-(*     (forall A', subspec (H A') (B b (T b H) A')) -> *)
-(*     (forall A'', subspec ((S H) A'') (B b (T b H) A'')). *)
-(* Proof. *)
-(*   intros;intro;intros. *)
-(*   assert (B b (T b (T b H)) A'' k R P -> B b (T b H) A'' k R P). *)
-(*   apply B_mono. apply H2. intro;intros;intro;intros. *)
-(*   apply T_idem; try assumption. *)
-(*   revert H7. apply T_mono. intro;intros;intro;intros. *)
-(*   revert H8. apply T_mono; firstorder. firstorder. firstorder. *)
-(*   apply H6. *)
-  
-(*   apply T_compat. assumption. intro;intros;intro;intros.  *)
-(*   revert H8. apply T_mono; firstorder.  *)
-
-(*   apply H3. revert H5. apply H0. intro;intros;intro;intros. *)
-(*   apply H4. revert H7. apply H1; firstorder. firstorder.  *)
-(* Qed. *)
 
 (* H <= B T (S H) implies H <= B T H *)
 Lemma SHT_lemma'' : forall S H b,

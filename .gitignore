@@ -1,4 +1,5 @@
 *.vo
 *.glob
+*.v.d
 dist
 .shake

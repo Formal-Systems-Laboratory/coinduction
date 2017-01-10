@@ -10,9 +10,17 @@ common/
 Define the proof principles specialized to transitivity,
 and also a representation of map with an ACU equivalence
 relation, and some lemmas on that
+Also contains theory for higher-order verification in files:
+ - ho_proof_gen.v
+ - ho_proof_until_gen.v
+ - step_ok.v
+ - step_all_ok.v
+ - until_ok.v
+ - until_all_ok.v
 
 himp/
 example proofs for imp-type language with heaps
+higher-order example located in examples/ex03_list/ho.v
 
 stack/
 forth-like stack based language
@@ -22,7 +30,8 @@ lambda calculus, no named functions (de bruijn indices)
 
 csl/
 very simple imp language (adapted from Chlipala's FRAP text),
-first concurrency examples; first examples with locks
+wip on first concurrency examples; first examples with locks
 
 
+simply type "./build.sh" to run
 all files compiled using Coq version 8.4

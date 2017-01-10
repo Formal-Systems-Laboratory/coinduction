@@ -518,7 +518,7 @@ Proof.
   assert (({} \cup {0}) \setminus {0} = {}) by sets idtac.
   rewrite <- H3. rewrite H31. apply H.
   intros. inversion H. 
-Qed.
+Qed. 
 
 Lemma ho_spec_BT : forall A,
     subspec (ho_spec A) (B (step (@cslstep unit)) (T (step (@cslstep unit)) ho_spec) A).

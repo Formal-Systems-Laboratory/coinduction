@@ -74,7 +74,6 @@ Lemma tstep: forall F, mono F -> forall A x R P,
 Proof.
   intros. apply use_step. apply step_mono. assumption. eapply sstep. assumption. assumption.
 Qed.
-Print tstep. 
 
 Lemma trule: forall F, mono F -> forall (A : ho_proof_until_gen.Spec cfg) x R P,
       A x R P -> T step F A x R P.
@@ -85,17 +84,6 @@ Qed.
 Lemma tdone: forall F, mono F -> forall A x R (P:cfg->Prop), P x -> T step F A x R P.
 Proof.
   intros. apply use_step. apply step_mono. assumption. eapply sdone;eassumption.
-Qed.
-
-Lemma tcoind: forall F,
-    mono F -> forall X Y x R (P:cfg->Prop),
-      step (T step F X) x R P \/ step (T step F Y) x R P -> T step F X x R P.
-Proof.
-  intros.
-  (* pose proof (@t_coind' cfg step X Y).*)   
-  apply Tf_idem. apply step_mono. assumption. apply Tf_t. assumption.
-  eapply t_coind' with Y; try assumption. 
-  admit. admit. 
 Qed.
 
 Lemma ttrans: forall F, mono F -> forall A x R Q P,

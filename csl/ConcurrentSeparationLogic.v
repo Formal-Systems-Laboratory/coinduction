@@ -201,8 +201,9 @@ Inductive ho_spec (B : Spec (cfg unit)) : Spec (cfg unit) :=
 | claim1 : forall h P n,
     h = $0 $+ (0, n) -> n > 0 -> 
     B (Cfg h {} (P || incrementer)) (fun _ c => inc_inv c) (fun _ => False) ->
-    ho_spec B (Cfg (h $+ (0 ,n)) {} (P || incrementer))
+    ho_spec B (Cfg (h $+ (0, n)) {} (P || incrementer))
             (fun _ c => inc_inv c) (fun _ => False).
+
 
 Inductive nonho_spec : Spec (cfg unit) :=
 | nonho_claim : forall h n,
@@ -435,6 +436,8 @@ Proof.
 
   intros. inversion H. apply ho_gfp.
 Qed.
+
+
 
 (* Print Assumptions ho_ok_all. *)
 
