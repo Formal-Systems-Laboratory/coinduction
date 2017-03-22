@@ -1,5 +1,5 @@
 #ex01_undefined/Files.mk
-#ex02_simple/Files.mk
+ex02_simple/Files.mk
 ex03_list/Files.mk
 #ex04_io/Files.mk
 ex05_tree/Files.mk

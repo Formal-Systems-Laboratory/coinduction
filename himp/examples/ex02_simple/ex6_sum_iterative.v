@@ -41,3 +41,23 @@ simple_solver.
 + rewrite (sum_math nv) by auto with zarith; simple_run.
 + replace nv with 0%Z by auto with zarith; simple_run.
 Qed.
+
+Definition sum_inf :=
+  (SWhile (BCon true) 
+          (Seq (SAssign "s" (EPlus (EVar "s") (EVar "n")))
+               (SAssign "n" (EPlus (EVar "n") (ECon (-1)%Z))))).
+
+Definition sum_code_inf :=
+  Seq (SAssign "s" (ECon 0))
+ (Seq sum_inf
+      (SReturn (EVar "s"))).
+
+Inductive sum_inf_spec : kcfg -> (kcfg -> Prop) -> Prop :=
+| inf_claim : forall c, kcell c = kra (KStmt sum_inf)
+                                      (kra (KStmt (SReturn (EVar "s"))) kdot) ->
+    forall nv sv m, store c ~=
+      ("n" s|-> KInt nv :* "s" s|-> KInt sv :* m) ->
+    sum_inf_spec c (fun r => False).
+
+Lemma sum_inf_proof : sound kstep sum_inf_spec.
+Proof. simple_solver. Qed.

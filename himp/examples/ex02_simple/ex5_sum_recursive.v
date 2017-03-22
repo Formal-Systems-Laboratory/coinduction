@@ -32,6 +32,26 @@ Hint Resolve sum_math : done_hints.
 
 Lemma mult_sound : sound kstep sum_spec.
 Proof.
-simple_solver.
-replace nv with 0%Z by auto with zarith; simple_run.
+  simple_solver. replace nv with 0%Z by auto with zarith; simple_run.
 Qed.
+
+Definition sum_inf :=
+  SIf (BCon false)
+      (SReturn (ECon 0))
+      (SReturn (EPlus (EVar "n")
+                      (ECall "sum_recursive_inf"
+                             (EMinus (EVar "n") (ECon 1) :: nil)))).
+
+Definition sum_fun_inf :=
+  FunDef "sum_recursive_inf" ("n" :: nil) sum_inf.
+
+Inductive sum_inf_spec : kcfg -> (kcfg -> Prop) -> Prop :=
+  inf_claim : forall c, kcell c = kra (KStmt sum_inf) kdot ->
+    forall nv m, store c ~=
+      ("n" s|-> KInt nv :* m) ->
+    forall f, functions c ~=
+      ("sum_recursive_inf" s|-> KDefn sum_fun_inf :* f) ->
+              sum_inf_spec c (fun r => False).
+
+Lemma sum_inf_sound : sound kstep sum_inf_spec.
+Proof. simple_solver. Qed.

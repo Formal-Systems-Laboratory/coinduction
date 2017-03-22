@@ -12,3 +12,4 @@ ex10_reverse.v
 ex11_append.v
 ex12_copy.v
 ex13_delete.v
+ex14_omega.v

@@ -1,4 +1,6 @@
-Require Export fun_semantics.
+Require Export himp_steps.
+Require Export himp_tactics.
+
 Set Implicit Arguments.
 
 Require Import ZArith.
