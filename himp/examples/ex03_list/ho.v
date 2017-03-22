@@ -101,8 +101,6 @@ Proof.
   simpl.
   eapply ttrans; try apply ho_spec_mono.
 
-  
-
   eapply z_spec_mono with (spec2 := T (step kstep) ho_spec A) in H0. eapply H0.
   simpl;equate_maps. assumption. pat_solver.
   intros. eapply Tf_id. trivial.

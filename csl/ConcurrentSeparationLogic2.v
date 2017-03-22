@@ -195,6 +195,7 @@ Definition inc_inv A : cfg A -> Prop :=
       exists (x : nat) (h1 h2 : heap),
         split h h1 h2 /\ disjoint h1 h2 /\ ptsto 0 x h1 /\ [|x > 0|]%sep h2.
 
+
 (* Inductive ho_spec_old (B : Spec (cfg unit)) : Spec (cfg unit) := *)
 (* | claim1_old : forall h P n, *)
 (*     h = $0 $+ (0, n) -> n > 0 ->  *)
@@ -219,17 +220,17 @@ Inductive ho_spec (C : Spec (cfg unit)) : Spec (cfg unit) :=
     (forall x x' l l' Z Z' Q,
         cslstep (Cfg x l (Z || Q)) (Cfg x' l' (Z' || Q)) ->
         C (Cfg x' l' (Z' || Q)) (fun _ c => inc_inv c) (fun _ => False) /\
-        inc_inv (Cfg x' l' (Z' || Q)))
-    -> ho_spec C (Cfg (h $+ (0 ,n)) {} (P || incrementer))
+        inc_inv (Cfg x' l' (Z' || Q))) ->
+    ho_spec C (Cfg (h $+ (0, n)) {} (P || incrementer))
                (fun _ c => inc_inv c) (fun _ => False).
 
 Inductive EnforceInvariance (C : Spec (cfg unit)) : Spec (cfg unit) :=
-| enf1 : forall x x' l l' Z Z' Q,
-    cslstep (Cfg x l (Z || Q)) (Cfg x' l' (Z' || Q)) ->
-    EnforceInvariance C (Cfg x' l' (Z' || Q)) (fun _ c => inc_inv c) (fun _ => False)
-| enf2 : forall x l Z Q,
-    C (Cfg x l (Z || Q)) (fun _ c => inc_inv c) (fun _ => False) ->
-    EnforceInvariance C (Cfg x l (Z || Q)) (fun _ c => inc_inv c) (fun _ => False).
+| enf1 : forall c c',
+    cslstep c c' ->
+    EnforceInvariance C c' (fun _ d => inc_inv d) (fun _ => False)
+| enf2 : forall c,
+    C c (fun _ d => inc_inv d) (fun _ => False) ->
+    EnforceInvariance C c (fun _ d => inc_inv d) (fun _ => False).
 
 Inductive ho_spec_simp (C : Spec (cfg unit)) : Spec (cfg unit) :=
 | claim1_simp : forall h P n,
