@@ -17,17 +17,3 @@ Inductive sum_spec : Spec kcfg :=
 
 Lemma sum_proof : sound kstep sum_spec.
 Proof. list_solver. Qed.
-
-Definition sum_inf := FunDef "sum_inf" ["x"]
- {{Decl "s";"s"<-0
-  ;SWhile (BCon true) {{"s"<-"s"+1}}
-  ;SReturn "s"}}.
-
-Inductive sum_inf_spec : Spec kcfg :=
-  inf_claim : forall k H l x, heap_loop sum_inf_spec
-  sum_inf 0 ("s" s|-> KInt k :* "x" s|-> KInt x)
-    (asP H (rep_list l x))
-    (fun r => constraint False).
-
-Lemma sum_inf_proof : sound kstep sum_inf_spec.
-Proof. list_solver. Qed.

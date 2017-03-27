@@ -14,17 +14,3 @@ Inductive sum_spec : Spec kcfg :=
 
 Lemma sum_proof : sound kstep sum_spec.
 Proof. list_solver. Qed.
-
-Definition sum_inf := FunDef "sum_recursive_inf" ["x"]
- (SIf (BCon false)
-   (SReturn 0)
-   (SReturn (arr_val "x"
-           + ECall "sum_recursive_inf" [arr_next "x"]))).
-
-Inductive sum_spec_inf : Spec kcfg :=
-  inf_claim : forall H l x, heap_fun sum_spec_inf nil sum_inf [Int x]
-    (asP H (rep_list l x))
-    (fun r => constraint False).
-
-Lemma sum_inf_proof : sound kstep sum_spec.
-Proof. list_solver. Qed.

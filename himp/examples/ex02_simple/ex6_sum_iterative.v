@@ -42,6 +42,9 @@ simple_solver.
 + replace nv with 0%Z by auto with zarith; simple_run.
 Qed.
 
+
+(* Same program, but no terminating condition. Nontermination is proved *)
+
 Definition sum_inf :=
   (SWhile (BCon true) 
           (Seq (SAssign "s" (EPlus (EVar "s") (EVar "n")))
