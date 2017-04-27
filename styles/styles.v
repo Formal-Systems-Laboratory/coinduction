@@ -43,7 +43,15 @@ Inductive loop_spec {prog : Set} (wrap : Stmt -> prog -> prog)
       loop_spec wrap (wrap (SWhile (EGt (EVar "n") (ECon 0%Z)) (SAssign "n" (EPlus (EVar "n") (ECon (-1)%Z)))) rest, store)
      (fun c => fst c = rest /\ exists n, (n <= 0)%Z /\ snd c ~= "n" |-> n).
 
-Ltac trans_solver ::= solve[refine (loop_claim _ _ _);equate_maps].
+Inductive loop_spec_inf {prog : Set} (wrap : Stmt -> prog -> prog)
+    : (prog * Map string Z) -> ((prog * Map string Z) -> Prop) -> Prop :=
+  | loop_claim_inf : forall store n rest, store ~= "n" |-> n ->
+      loop_spec_inf wrap (wrap (SWhile (EGt (ECon 1%Z) (ECon 0%Z)) (SAssign "n" (EPlus (EVar "n") (ECon (-1)%Z)))) rest, store)
+     (fun c => False).
+
+Ltac trans_solver ::=
+     solve[refine (loop_claim _ _ _);equate_maps] ||
+     solve[refine (loop_claim_inf _ _ _);equate_maps].
 
 Ltac example_proof :=
   apply proved_sound;destruct 1;
@@ -108,6 +116,9 @@ Hint Constructors step exp_step : step_db.
 Ltac step_solver ::= solve[eauto 20 with step_db].
 
 Lemma example : sound step (loop_spec Seq).
+Proof. example_proof. Qed.
+
+Lemma example_inf : sound step (loop_spec_inf Seq).
 Proof. example_proof. Qed.
 
 End small_step.
@@ -184,6 +195,9 @@ Ltac step_solver ::=
 Lemma example : sound step (loop_spec Seq).
 Proof. example_proof. Qed.
 
+Lemma example_inf : sound step (loop_spec_inf Seq).
+Proof. example_proof. Qed.
+
 End evaluation_contexts.
 
 (* Finally k style *)
@@ -248,4 +262,8 @@ Ltac step_solver ::= econstructor(equate_maps).
 
 Lemma example : sound step (loop_spec (fun s c => KStmt s :: c)).
 Proof. example_proof. Qed.
+
+Lemma example_inf : sound step (loop_spec_inf (fun s c => KStmt s :: c)).
+Proof. example_proof. Qed.
+
 End k_style.
