@@ -18,15 +18,23 @@ Also contains theory for higher-order verification in files:
  - until_ok.v
  - until_all_ok.v
 
+styles/
+verification of toy program and toy divergent program in
+different semantic styles
+
+
 himp/
 example proofs for imp-type language with heaps
 higher-order example located in examples/ex03_list/ho.v
+divergence example located in examples/ex03_list/ex14_inf.v
 
 stack/
 forth-like stack based language
+divergence example located in examples/ex03_list/ex14_inf.v
 
 lambda/
 lambda calculus, no named functions (de bruijn indices)
+divergence example located in examples/ex03_list/ex14_omega.v
 
 csl/
 very simple imp language (adapted from Chlipala's FRAP text),
