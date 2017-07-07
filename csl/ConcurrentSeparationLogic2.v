@@ -563,7 +563,7 @@ Qed.
 (* ho_spec_simp <= S (ho_spec) *)
 (* Proof also relies on ho_spec <= ho_spec_simp *)
 
-Print Assumptions ho_spec_simp_BT.
+(* Print Assumptions ho_spec_simp_BT. *)
 
 
 Theorem ho_ok_all : sound (@cslstep unit) nonho_spec.
@@ -579,6 +579,6 @@ Proof.
   rewrite H5. constructor; auto.
 Qed.
 
-Print Assumptions ho_ok_all.
+(* Print Assumptions ho_ok_all. *)
 
  
