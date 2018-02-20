@@ -3,15 +3,3 @@
 *.v.d
 dist
 .shake
-
-# temporary files
-bytewise/coq_makefile.mk
-common/ho_proof_until_gen2.v
-common/until_all_ok2.v
-csl/ConcurrentSeparationLogic3.v
-csl/ConcurrentSeparationLogic_bad.v
-himp/examples/ex02_simple/ex5_sum_recursive_full.v
-himp/examples/ex03_list/ex01_head_full.v
-himp/examples/ex03_list/ex08_sum_recursive_full.v
-lambda/examples/ex03_list/ex14_omega_old.v
-styles/styles_full.v
