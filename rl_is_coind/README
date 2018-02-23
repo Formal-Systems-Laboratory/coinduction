@@ -1,0 +1,6 @@
+Proof that Coinduction subsumes Reachability Logic
+
+rl_is_coinduction.v is the file proves this connection
+
+simply type "make" to run
+all files compiled using Coq version 8.6
